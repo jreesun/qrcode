@@ -5,7 +5,7 @@
 #include "qrcodegen.h"
 #include "string.h"
 
-STATIC mp_obj_t qrcode_encode(mp_obj_t text_obj){
+STATIC mp_obj_t qrcode_encode(mp_obj_t text_obj) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(text_obj, &bufinfo, MP_BUFFER_READ);
 
@@ -16,41 +16,28 @@ STATIC mp_obj_t qrcode_encode(mp_obj_t text_obj){
     memcpy(tempBuffer, bufinfo.buf, bufinfo.len);
     bool ok = false;
     bool is_bytes = false;
-    for(int i = 0; i < bufinfo.len; i++){
-        if(tempBuffer[i] == 0){ // \x00 will cut the byte array
+    for (int i = 0; i < bufinfo.len; i++) {
+        if (tempBuffer[i] == 0) { // \x00 will cut the byte array
             is_bytes = true;
         }
     }
-    if(is_bytes){
+    if (is_bytes) {
         ok = qrcodegen_encodeBinary(tempBuffer, bufinfo.len, qrcode, errCorLvl,
-            qrcodegen_VERSION_MIN, qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
-    }else{
+                                     qrcodegen_VERSION_MIN, qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
+    } else {
         ok = qrcodegen_encodeText(bufinfo.buf, tempBuffer, qrcode, errCorLvl,
-            qrcodegen_VERSION_MIN, qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
+                                  qrcodegen_VERSION_MIN, qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
     }
-    if(!ok){
+    if (!ok) {
         mp_raise_ValueError("Failed to encode");
     }
     int size = qrcodegen_getSize(qrcode);
-    // align to 8 bits and add 2-block border
-    int imgsize = (size/8+1)*8+4;
-    int lpad = (imgsize-size)/2;
-    size_t bufsize = (imgsize*imgsize)/8;
+
+    size_t bufsize = (size * size + 7) / 8;
     vstr_t vstr;
     vstr_init_len(&vstr, bufsize);
-    memset((byte*)vstr.buf, 0, bufsize);
-    size_t cur = imgsize*lpad;
-    for(int y=0; y<imgsize-lpad; y++){
-        cur+=lpad;
-        for(int x=0; x<imgsize-lpad; x++){
-            vstr.buf[cur/8] = vstr.buf[cur/8] << 1;
-            if(x<size && y<size){
-                if(qrcodegen_getModule(qrcode, x, y)){
-                    vstr.buf[cur/8]++;
-                }
-            }
-            cur++;
-        }
+    for (size_t i = 0; i < bufsize - 1; ++i) {
+        vstr.buf[i] = qrcode[(i + 1)];
     }
     return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
 }
