@@ -126,41 +126,41 @@ static const int PENALTY_N4 = 10;
 /*---- High-level QR Code encoding functions ----*/
 
 // Public function - see documentation comment in header file.
-bool qrcodegen_encodeText(const char *text, uint8_t tempBuffer[], uint8_t qrcode[],
-		enum qrcodegen_Ecc ecl, int minVersion, int maxVersion, enum qrcodegen_Mask mask, bool boostEcl) {
+// bool qrcodegen_encodeText(const char *text, uint8_t tempBuffer[], uint8_t qrcode[],
+// 		enum qrcodegen_Ecc ecl, int minVersion, int maxVersion, enum qrcodegen_Mask mask, bool boostEcl) {
 	
-	size_t textLen = strlen(text);
-	if (textLen == 0)
-		return qrcodegen_encodeSegmentsAdvanced(NULL, 0, ecl, minVersion, maxVersion, mask, boostEcl, tempBuffer, qrcode);
-	size_t bufLen = (size_t)qrcodegen_BUFFER_LEN_FOR_VERSION(maxVersion);
+// 	size_t textLen = strlen(text);
+// 	if (textLen == 0)
+// 		return qrcodegen_encodeSegmentsAdvanced(NULL, 0, ecl, minVersion, maxVersion, mask, boostEcl, tempBuffer, qrcode);
+// 	size_t bufLen = (size_t)qrcodegen_BUFFER_LEN_FOR_VERSION(maxVersion);
 	
-	struct qrcodegen_Segment seg;
-	if (qrcodegen_isNumeric(text)) {
-		if (qrcodegen_calcSegmentBufferSize(qrcodegen_Mode_NUMERIC, textLen) > bufLen)
-			goto fail;
-		seg = qrcodegen_makeNumeric(text, tempBuffer);
-	} else if (qrcodegen_isAlphanumeric(text)) {
-		if (qrcodegen_calcSegmentBufferSize(qrcodegen_Mode_ALPHANUMERIC, textLen) > bufLen)
-			goto fail;
-		seg = qrcodegen_makeAlphanumeric(text, tempBuffer);
-	} else {
-		if (textLen > bufLen)
-			goto fail;
-		for (size_t i = 0; i < textLen; i++)
-			tempBuffer[i] = (uint8_t)text[i];
-		seg.mode = qrcodegen_Mode_BYTE;
-		seg.bitLength = calcSegmentBitLength(seg.mode, textLen);
-		if (seg.bitLength == -1)
-			goto fail;
-		seg.numChars = (int)textLen;
-		seg.data = tempBuffer;
-	}
-	return qrcodegen_encodeSegmentsAdvanced(&seg, 1, ecl, minVersion, maxVersion, mask, boostEcl, tempBuffer, qrcode);
+// 	struct qrcodegen_Segment seg;
+// 	if (qrcodegen_isNumeric(text)) {
+// 		if (qrcodegen_calcSegmentBufferSize(qrcodegen_Mode_NUMERIC, textLen) > bufLen)
+// 			goto fail;
+// 		seg = qrcodegen_makeNumeric(text, tempBuffer);
+// 	} else if (qrcodegen_isAlphanumeric(text)) {
+// 		if (qrcodegen_calcSegmentBufferSize(qrcodegen_Mode_ALPHANUMERIC, textLen) > bufLen)
+// 			goto fail;
+// 		seg = qrcodegen_makeAlphanumeric(text, tempBuffer);
+// 	} else {
+// 		if (textLen > bufLen)
+// 			goto fail;
+// 		for (size_t i = 0; i < textLen; i++)
+// 			tempBuffer[i] = (uint8_t)text[i];
+// 		seg.mode = qrcodegen_Mode_BYTE;
+// 		seg.bitLength = calcSegmentBitLength(seg.mode, textLen);
+// 		if (seg.bitLength == -1)
+// 			goto fail;
+// 		seg.numChars = (int)textLen;
+// 		seg.data = tempBuffer;
+// 	}
+// 	return qrcodegen_encodeSegmentsAdvanced(&seg, 1, ecl, minVersion, maxVersion, mask, boostEcl, tempBuffer, qrcode);
 	
-fail:
-	qrcode[0] = 0;  // Set size to invalid value for safety
-	return false;
-}
+// fail:
+// 	qrcode[0] = 0;  // Set size to invalid value for safety
+// 	return false;
+// }
 
 
 // Public function - see documentation comment in header file.
